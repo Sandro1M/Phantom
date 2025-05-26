@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Isagi Info with Search</title>
+  <style>
+    @font-face {
+      font-family: "MyCustomFont";
+      src: url("fonts/bpg_nino_mtavruli_bold.ttf") format("truetype");
+    }
+
+    body, h1, h2, p, a {
+      font-family: "MyCustomFont", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: white;
+    }
+
+    #background-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -1;
+      filter: brightness(0.6);
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 10px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.5);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.7);
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 25px;
+    }
+
+    .site-title a {
+      font-size: 28px;
+      color: #00ffff;
+      text-decoration: none;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+    }
+
+    .nav-item a {
+      font-size: 18px;
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s ease;
+      padding: 4px 8px;
+      border-radius: 5px;
+    }
+
+    .nav-item a:hover {
+      color: #00ffff;
+      background: rgba(0,255,255,0.15);
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      max-width: 1000px;
+      margin: 160px auto 60px;
+      padding: 0 20px;
+      text-align: center;
+    }
+
+    .news-container {
+      display: flex;
+      flex-direction: column;
+      gap: 50px;
+      align-items: center;
+    }
+
+    .news-card {
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid #00ffff;
+      border-radius: 20px;
+      padding: 30px 25px;
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
+      width: 100%;
+      max-width: 900px;
+      transition: transform 0.3s ease;
+      text-align: left;
+    }
+
+    .news-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
+    }
+
+    .news-card h1, .news-card h2 {
+      color: #00ffff;
+      margin-bottom: 15px;
+      font-weight: 700;
+      font-size: 1.8rem;
+      line-height: 1.3;
+    }
+
+    .news-card a {
+      color: #00ffff;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .news-card a:hover {
+      text-decoration: underline;
+      color: #80ffff;
+    }
+
+    .news-card img {
+      width: 100%;
+      max-height: 400px;
+      height: auto;
+      border-radius: 12px;
+      margin-top: 20px;
+      box-shadow: 0 0 15px rgba(0,255,255,0.3);
+      object-fit: contain;
+    }
+
+    /* Search styles */
+    .search-container {
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    #searchInput {
+      padding: 10px 15px;
+      width: 300px;
+      border-radius: 15px;
+      border: 2px solid #00ffff;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      font-size: 16px;
+      outline: none;
+      transition: border 0.3s ease;
+    }
+
+    #searchInput:focus {
+      border-color: #80ffff;
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    .search-button {
+      margin-left: 12px;
+      padding: 10px 22px;
+      border: 2px solid #00ffff;
+      background: rgba(0, 255, 255, 0.1);
+      color: #00ffff;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .search-button:hover {
+      background: rgba(0, 255, 255, 0.25);
+      color: #80ffff;
+    }
+
+    #searchResults {
+      margin-top: 25px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .search-result {
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px solid #00ffff;
+      padding: 12px 18px;
+      max-width: 700px;
+      color: #00ffff;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+      text-align: left;
+      font-weight: 700;
+      font-size: 1.1rem;
+      text-decoration: none;
+      display: block;
+    }
+
+    .search-result:hover {
+      background: rgba(0, 255, 255, 0.15);
+      color: #80ffff;
+    }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      .news-card h1, .news-card h2 {
+        font-size: 1.4rem;
+      }
+
+      #searchInput {
+        width: 90%;
+        max-width: 300px;
+      }
+
+      .search-button {
+        padding: 10px 16px;
+        font-size: 14px;
+      }
+    }
+        /* Dropdown */
+    .dropdown {
+      position: relative;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid #00ffff;
+      border-radius: 10px;
+      padding: 10px;
+      display: none;
+      flex-direction: column;
+      min-width: 160px;
+      box-shadow: 0 0 15px rgba(0,255,255,0.4);
+      z-index: 100;
+    }
+
+    .dropdown:hover .dropdown-menu {
+      display: flex;
+    }
+
+    .dropdown-menu a {
+      color: white;
+      padding: 8px 10px;
+      text-decoration: none;
+      font-size: 16px;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+
+    .dropdown-menu a:hover {
+      background: rgba(0, 255, 255, 0.1);
+      color: #00ffff;
+    }
+  </style>
+</head>
+<body>
+
+  <video autoplay muted loop playsinline id="background-video">
+    <source src="video-1.webm" type="video/mp4" />
+  </video>
+
+  <header>
+    <div class="nav-left">
+      <h1 class="site-title"><a href="index.html">PHANTOMS</a></h1>
+      <h2 class="nav-item"><a href="update.html">UPDATE</a></h2>
+      <h2 class="nav-item"><a href="codes.html">Codes</a></h2>
+      <h2 class="nav-item"><a href="allch.html">Characters</a></h2>
+      <h2 class="nav-item"><a href="controls.html">Contrls</a></h2>
+      <h2 class="nav-item"><a href="link.html">Game Link</a></h2>
+        <div class="nav-item dropdown">
+      <h2 class="nav-item"><a href="">Other</a></h2>
+        <div class="dropdown-menu">
+              <a href="allteams.html">All Teams</a>
+              <a href="help.html">Help</a>
+              <a href="worldcup.html">WORLD CUP</a>
+              <a href="discord.html">Discord</a>
+              <a href="youtube.html">Youtube</a>
+            </div>
+          </div>
+        </div>
+  </header>
+
+  <main class="content">
+
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search..." />
+      <button class="search-button" onclick="searchHeadings()">Search</button>
+      <div id="searchResults"></div>
+    </div>
+
+    <div class="news-container">
+      <article class="news-card" id="isagi">
+        <h1>How To Join In Teams</h1>
+        <p>Go to Discord, contact the admin on a <br>ticket and they will explain the rest there.</p>
+      </article>
+      <article class="news-card" id="isagi">
+        <h1>How To Play </h1>
+        <p>Go to Roblox, search for Phantoms and play, if you can't find it that way,<br> search for the person Qsandera_sempai and you will find Phantom in his favorite games</p>
+      </article>
+      <article class="news-card" id="isagi">
+        <h1>How do I play on World Cup?</h1>
+        <p>Read the Discord rules and write a ticket to the administration, you must be level 70 or above</p>
+      </article>
+
+
+       <article class="news-card" id="isagi">
+        <h1>soon</h1>
+        <p>soon</p>
+      </article>
+
+
+
+
+    </div>
+  </main>
+
+  <script>
+    function searchHeadings() {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      const resultsContainer = document.getElementById('searchResults');
+      resultsContainer.innerHTML = '';
+
+      if (!query) return;
+
+      // Select all h1 and h2 inside .content
+      const headings = document.querySelectorAll('.content h1, .content h2');
+      const matches = [];
+
+      headings.forEach(heading => {
+        if (heading.textContent.toLowerCase().includes(query)) {
+          matches.push(heading);
+        }
+      });
+
+      if (matches.length === 0) {
+        resultsContainer.innerHTML = '<div class="search-result">No results found</div>';
+        return;
+      }
+
+      matches.forEach(heading => {
+        const link = document.createElement('a');
+        link.href = '#' + heading.parentElement.id; 
+        link.textContent = heading.textContent;
+        link.classList.add('search-result');
+        link.onclick = (e) => {
+          e.preventDefault();
+          heading.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          resultsContainer.innerHTML = '';
+          document.getElementById('searchInput').value = '';
+        };
+        resultsContainer.appendChild(link);
+      });
+    }
+  </script>
+
+</body>
+</html>
